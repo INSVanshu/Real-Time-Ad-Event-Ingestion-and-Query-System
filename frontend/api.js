@@ -1,5 +1,5 @@
 /**
- * api.js - one small client for the dashboard.
+ * api.js - one small client for the dashboard..
  *
  * connect(url) tries the Java backend (GET <url>/api/stats). If it answers, every call goes over HTTP,
  * otherwise the same calls run on the in-browser LocalEngine. Both return the same JSON shapes
