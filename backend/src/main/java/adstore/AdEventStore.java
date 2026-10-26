@@ -13,18 +13,18 @@ import java.util.Arrays;
 
 public class AdEventStore {
 
-    // ------------------------------------------------------------------ constants
+    
     public static final byte IMP = 0, CLICK = 1, CONV = 2;
     public static final String[] TYPE_NAMES = {"imp", "click", "conv"};
-    public static final int SEGMENT_SECONDS = 3600;   // one segment per hour
-    public static final int BYTES_PER_EDGE = 26;      // report layout: 13 bytes per side x 2 sides (this code uses 9 per side)
+    public static final int SEGMENT_SECONDS = 3600;   
+    public static final int BYTES_PER_EDGE = 26;     
 
     public static byte parseType(String s) {
         for (byte i = 0; i < TYPE_NAMES.length; i++) if (TYPE_NAMES[i].equalsIgnoreCase(s)) return i;
         return -1;
     }
 
-    // ------------------------------------------------------------------ result objects
+
     public static final class Edge {
         public final int time;
         public final String campaign, user;
@@ -52,7 +52,6 @@ public class AdEventStore {
         public SegmentInfo[] segmentList;
     }
 
-    // ------------------------------------------------------------------ IdMap (hash table, open addressing)
     private static final class IdMap {
         private String[] slotKey = new String[64];
         private int[] slotId = new int[64];
@@ -78,7 +77,7 @@ public class AdEventStore {
             int mask = slotKey.length - 1;
             int h = key.hashCode();
             int i = (h ^ (h >>> 16)) & mask;
-            while (slotKey[i] != null && !slotKey[i].equals(key)) i = (i + 1) & mask;   // linear probing
+            while (slotKey[i] != null && !slotKey[i].equals(key)) i = (i + 1) & mask;   
             return i;
         }
 
@@ -96,14 +95,14 @@ public class AdEventStore {
         }
     }
 
-    // ------------------------------------------------------------------ AdjacencyList (sorted by time)
+    
     private static final class AdjacencyList {
         int[] time = new int[4];
-        int[] other = new int[4];      // id of the vertex on the other side
+        int[] other = new int[4];      
         byte[] type = new byte[4];
         int size;
 
-        /** Normal case: append at the end, O(1). Late event: sorted insert near the tail. */
+        
         void add(int t, int o, byte ty) {
             if (size == time.length) {
                 time = Arrays.copyOf(time, size * 2);
@@ -120,14 +119,14 @@ public class AdEventStore {
             size++;
         }
 
-        /** first index whose time >= t (binary search) */
+        
         int lowerBound(int t) {
             int lo = 0, hi = size;
             while (lo < hi) { int mid = (lo + hi) >>> 1; if (time[mid] < t) lo = mid + 1; else hi = mid; }
             return lo;
         }
 
-        /** first index whose time > t (binary search) */
+        
         int upperBound(int t) {
             int lo = 0, hi = size;
             while (lo < hi) { int mid = (lo + hi) >>> 1; if (time[mid] <= t) lo = mid + 1; else hi = mid; }
@@ -135,7 +134,7 @@ public class AdEventStore {
         }
     }
 
-    // ------------------------------------------------------------------ WriteAheadLog (one small file per hour)
+    
     private static final class WriteAheadLog {
         private final PrintWriter out;
         WriteAheadLog(File file) throws IOException { out = new PrintWriter(new BufferedWriter(new FileWriter(file, true))); }
@@ -143,13 +142,13 @@ public class AdEventStore {
         void close() { out.close(); }
     }
 
-    // ------------------------------------------------------------------ TimeSegment (one hour of edges)
+
     private static final class TimeSegment {
         final int hour;
         boolean sealed;
         int edges;
-        AdjacencyList[] byCampaign = new AdjacencyList[16];   // index = campaign id
-        AdjacencyList[] byUser = new AdjacencyList[16];       // index = user id
+        AdjacencyList[] byCampaign = new AdjacencyList[16];   
+        AdjacencyList[] byUser = new AdjacencyList[16];       
         WriteAheadLog wal;
 
         TimeSegment(int hour) { this.hour = hour; }
@@ -159,8 +158,8 @@ public class AdEventStore {
             byUser = ensure(byUser, u);
             if (byCampaign[c] == null) byCampaign[c] = new AdjacencyList();
             if (byUser[u] == null) byUser[u] = new AdjacencyList();
-            byCampaign[c].add(t, u, ty);      // same edge, stored twice:
-            byUser[u].add(t, c, ty);          // once per side
+            byCampaign[c].add(t, u, ty);      
+            byUser[u].add(t, c, ty);          
             edges++;
         }
 
@@ -174,12 +173,12 @@ public class AdEventStore {
         }
     }
 
-    // ------------------------------------------------------------------ BipartiteGraph (segments sorted by hour)
+
     private static final class BipartiteGraph {
         TimeSegment[] segs = new TimeSegment[8];
         int count;
 
-        /** index of the hour, or -(insertion point + 1) when absent */
+        
         int indexOf(int hour) {
             int lo = 0, hi = count - 1;
             while (lo <= hi) {
@@ -209,9 +208,9 @@ public class AdEventStore {
         }
     }
 
-    // ================================================================== the store itself
-    private final File dir;               // null = pure in-memory, otherwise WAL + segment files live here
-    private final int lateness;           // seconds an hour stays open after it ends (late events)
+    
+    private final File dir;               
+    private final int lateness;           
     private IdMap campaigns = new IdMap();
     private IdMap users = new IdMap();
     private BipartiteGraph graph = new BipartiteGraph();
@@ -228,11 +227,11 @@ public class AdEventStore {
         if (dir != null) dir.mkdirs();
     }
 
-    // ------------------------------------------------------------------ O1: write an event (add edge)
+
     public synchronized boolean addEvent(int time, String campaign, String user, byte type) {
         int hour = time / SEGMENT_SECONDS;
         boolean bad = time < 0 || type < 0 || type > 2 || !validName(campaign) || !validName(user);
-        boolean tooLate = !replaying && (hour + 1) * SEGMENT_SECONDS + lateness <= maxTime;   // its hour is already sealed
+        boolean tooLate = !replaying && (hour + 1) * SEGMENT_SECONDS + lateness <= maxTime;   
         if (bad || tooLate) { rejected++; return false; }
 
         TimeSegment seg = graph.find(hour);
@@ -242,33 +241,33 @@ public class AdEventStore {
         }
         if (seg.sealed) { rejected++; return false; }
 
-        if (dir != null && !replaying) {            // 1) write-ahead log (sequential append)
+        if (dir != null && !replaying) {           
             try {
                 if (seg.wal == null) seg.wal = new WriteAheadLog(new File(dir, "wal-" + hour + ".log"));
                 seg.wal.append(line(time, campaign, user, type));
             } catch (IOException e) { throw new UncheckedIOException(e); }
         }
-        seg.add(campaigns.getOrAdd(campaign), users.getOrAdd(user), time, type);   // 2) two list appends
+        seg.add(campaigns.getOrAdd(campaign), users.getOrAdd(user), time, type);   
         accepted++;
 
         if (time > maxTime) maxTime = time;
-        if (!replaying && maxTime >= nextSealTime) sealDue();                      // 3) seal finished hours
+        if (!replaying && maxTime >= nextSealTime) sealDue();                     
         return true;
     }
 
-    // ------------------------------------------------------------------ O2: campaign time window  [from, to)
+    
     public synchronized Edge[] campaignEdges(String campaign, int from, int to) {
         int c = campaigns.get(campaign);
         return c < 0 ? new Edge[0] : collect(c, true, from, to);
     }
 
-    // ------------------------------------------------------------------ O3: user history  [from, to)
+    
     public synchronized Edge[] userEdges(String user, int from, int to) {
         int u = users.get(user);
         return u < 0 ? new Edge[0] : collect(u, false, from, to);
     }
 
-    // ------------------------------------------------------------------ O4a: unique reach of a campaign
+    
     public synchronized int uniqueReach(String campaign, int from, int to) {
         int c = campaigns.get(campaign);
         if (c < 0) return 0;
@@ -286,7 +285,7 @@ public class AdEventStore {
         return reach;
     }
 
-    // ------------------------------------------------------------------ O4b: frequency cap (impressions of a user to a campaign)
+    
     public synchronized int frequency(String campaign, String user, int from, int to) {
         int c = campaigns.get(campaign), u = users.get(user), n = 0;
         if (c < 0 || u < 0) return 0;
@@ -300,13 +299,12 @@ public class AdEventStore {
         return n;
     }
 
-    // ------------------------------------------------------------------ O4c: related campaigns (two hops)
-    /** Users who clicked campaign c -> their other campaigns -> number of shared users per campaign. */
+    
     public synchronized Related[] related(String campaign, int from, int to) {
         int c = campaigns.get(campaign);
         if (c < 0) return new Related[0];
         int[] shared = new int[campaigns.size];
-        int[] stamp = new int[campaigns.size];          // "already counted for this user" marker
+        int[] stamp = new int[campaigns.size];          
         boolean[] visited = new boolean[users.size];
         for (int s = 0; s < graph.count; s++) {
             TimeSegment seg = graph.segs[s];
@@ -316,8 +314,8 @@ public class AdEventStore {
             for (int i = l.lowerBound(from); i < hi; i++) {
                 int u = l.other[i];
                 if (l.type[i] != CLICK || visited[u]) continue;
-                visited[u] = true;                       // hop 1: user u clicked c
-                for (int s2 = 0; s2 < graph.count; s2++) {   // hop 2: everything else u did
+                visited[u] = true;                       
+                for (int s2 = 0; s2 < graph.count; s2++) {   
                     TimeSegment seg2 = graph.segs[s2];
                     AdjacencyList ul = seg2.overlaps(from, to) ? seg2.user(u) : null;
                     if (ul == null) continue;
@@ -334,7 +332,7 @@ public class AdEventStore {
         Related[] out = new Related[n];
         n = 0;
         for (int k = 0; k < shared.length; k++) if (shared[k] > 0) out[n++] = new Related(campaigns.nameOf(k), shared[k]);
-        for (int i = 1; i < out.length; i++) {            // insertion sort, most shared users first
+        for (int i = 1; i < out.length; i++) {            
             Related x = out[i];
             int j = i - 1;
             while (j >= 0 && out[j].sharedUsers < x.sharedUsers) { out[j + 1] = out[j]; j--; }
@@ -343,11 +341,11 @@ public class AdEventStore {
         return out;
     }
 
-    // ------------------------------------------------------------------ helper for the dashboard: some recent edges
+
     public synchronized Edge[] sample(int from, int to, int max) {
         Edge[] out = new Edge[Math.max(max, 0)];
         int n = 0;
-        int perCampaign = Math.max(1, max / Math.max(1, campaigns.size));    // fair share, so one hot campaign cannot fill the sample
+        int perCampaign = Math.max(1, max / Math.max(1, campaigns.size));    
         for (int s = graph.count - 1; s >= 0 && n < max; s--) {
             TimeSegment seg = graph.segs[s];
             if (!seg.overlaps(from, to)) continue;
@@ -362,7 +360,7 @@ public class AdEventStore {
         return Arrays.copyOf(out, n);
     }
 
-    // ------------------------------------------------------------------ O6: expire old data (drop whole segments)
+
     public synchronized int dropBefore(int time) {
         int i = 0, dropped = 0;
         while (i < graph.count && (graph.segs[i].hour + 1) * SEGMENT_SECONDS <= time) {
@@ -409,7 +407,7 @@ public class AdEventStore {
         accepted = rejected = 0;
     }
 
-    // ------------------------------------------------------------------ O7: crash recovery (replay segment files + logs)
+    
     public synchronized int recover() {
         File[] files = dir == null ? null : dir.listFiles();
         if (files == null) return 0;
@@ -421,7 +419,7 @@ public class AdEventStore {
                 boolean isSeg = name.startsWith("seg-") && name.endsWith(".edges");
                 boolean isWal = name.startsWith("wal-") && name.endsWith(".log");
                 if (isWal && new File(dir, "seg-" + name.substring(4, name.length() - 4) + ".edges").exists()) {
-                    f.delete();                       // segment already sealed, its log is obsolete
+                    f.delete();                      
                     continue;
                 }
                 if (!isSeg && !isWal) continue;
@@ -431,7 +429,7 @@ public class AdEventStore {
                         String[] p = ln.split(",");
                         try {
                             if (p.length == 4 && addEvent(Integer.parseInt(p[0]), p[1], p[2], parseType(p[3]))) n++;
-                        } catch (NumberFormatException torn) { /* half-written last line: skip */ }
+                        } catch (NumberFormatException torn) { }
                     }
                 } catch (IOException e) { throw new UncheckedIOException(e); }
             }
@@ -440,8 +438,7 @@ public class AdEventStore {
         return n;
     }
 
-    // ================================================================== private helpers
-    /** Collect edges of one vertex in [from, to): one binary search per overlapping segment. */
+    
     private Edge[] collect(int v, boolean campaignSide, int from, int to) {
         Edge[] out = new Edge[16];
         int n = 0;
