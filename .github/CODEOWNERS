@@ -1,22 +1,19 @@
-# Replace @member1 ... @member4 with the real GitHub usernames of the team.
-# Every pull request touching a file is reviewed by its owner.
 
-# Part 1 - DSA core
 /backend/src/main/java/adstore/AdEventStore.java   @INSVanshu
 /frontend/local-engine.js                          @INSVanshu
 /docs/DSA.md                                       @INSVanshu
 
-# Part 2 - Backend API
+
 /backend/src/main/java/adstore/Server.java         @sreejakadambari27-dotcom
 /frontend/api.js                                   @sreejakadambari27-dotcom
 /docs/API.md                                       @sreejakadambari27-dotcom
 
-# Part 3 - Frontend simulation
+
 /frontend/index.html                               @Neeharika2008-spec
 /frontend/style.css                                @Neeharika2008-spec
 /frontend/app.js                                   @Neeharika2008-spec
 
-# Part 4 - Tests, CI/CD, docs
+
 /backend/src/test/                                 @kurubaSanjana
 /.github/                                          @kurubaSanjana
 /Dockerfile                                        @kurubaSanjana
