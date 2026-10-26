@@ -372,11 +372,11 @@ public class AdEventStore {
                 new File(dir, "wal-" + s.hour + ".log").delete();
             }
         }
-        graph.removeFirst(i);          // surviving segments are never rewritten
+        graph.removeFirst(i);          
         return dropped;
     }
 
-    // ------------------------------------------------------------------ statistics
+   
     public synchronized Stats stats() {
         Stats st = new Stats();
         st.accepted = accepted;
@@ -455,10 +455,10 @@ public class AdEventStore {
                         : new Edge(l.time[i], campaigns.nameOf(l.other[i]), users.nameOf(v), l.type[i]);
             }
         }
-        return Arrays.copyOf(out, n);      // segments are in hour order, so the result is in time order
+        return Arrays.copyOf(out, n);      
     }
 
-    /** Seal every segment whose hour (plus the lateness window) has passed. */
+    
     private void sealDue() {
         int next = Integer.MAX_VALUE;
         for (int i = 0; i < graph.count; i++) {
@@ -470,7 +470,7 @@ public class AdEventStore {
         nextSealTime = next;
     }
 
-    /** Write the finished hour to disk in one sequential pass, then remove its log. */
+    
     private void seal(TimeSegment seg) {
         if (dir != null) {
             File tmp = new File(dir, "seg-" + seg.hour + ".tmp");
@@ -483,11 +483,11 @@ public class AdEventStore {
                         w.println(line(l.time[i], campaigns.nameOf(c), users.nameOf(l.other[i]), l.type[i]));
                 }
             } catch (IOException e) { throw new UncheckedIOException(e); }
-            tmp.renameTo(fin);                                 // atomic publish of the immutable file
+            tmp.renameTo(fin);                                 
             if (seg.wal != null) { seg.wal.close(); seg.wal = null; }
             new File(dir, "wal-" + seg.hour + ".log").delete();
         }
-        seg.sealed = true;                                     // edges of a sealed segment never change
+        seg.sealed = true;                                     
     }
 
     private static String line(int t, String c, String u, byte ty) { return t + "," + c + "," + u + "," + TYPE_NAMES[ty]; }
@@ -496,13 +496,13 @@ public class AdEventStore {
         return s != null && !s.isEmpty() && s.indexOf(',') < 0 && s.indexOf('\n') < 0 && s.indexOf('\r') < 0;
     }
 
-    // ================================================================== demo: the worked example of the report (section 5.1.3)
+    
     public static void main(String[] args) {
         AdEventStore s = new AdEventStore();
         s.addEvent(at(9, 5), "c1", "u1", IMP);
         s.addEvent(at(9, 20), "c1", "u2", IMP);
         s.addEvent(at(9, 40), "c2", "u1", CLICK);
-        s.addEvent(at(10, 10), "c1", "u2", CLICK);     // new hour: segment 09 is sealed
+        s.addEvent(at(10, 10), "c1", "u2", CLICK);     
         s.addEvent(at(10, 30), "c2", "u3", IMP);
         s.addEvent(at(10, 45), "c3", "u2", IMP);
 
