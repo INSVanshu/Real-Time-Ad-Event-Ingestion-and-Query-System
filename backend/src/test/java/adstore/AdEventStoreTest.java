@@ -7,12 +7,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.Random;
 
-/**
- * Plain-Java tests (no JUnit needed). Every query of the graph is compared with a brute-force
- * scan of all accepted events, the same method used in section 5.2 of the case study.
- *
- * Run:  java -cp out adstore.AdEventStoreTest      (exit code 1 if anything fails)
- */
+
 public class AdEventStoreTest {
 
     static int passed, failed;
@@ -21,7 +16,7 @@ public class AdEventStoreTest {
         if (ok) passed++; else { failed++; System.out.println("  FAIL: " + name); }
     }
 
-    // ---- brute-force reference data: every accepted event
+    
     static int n;
     static int[] T = new int[300_000], C = new int[300_000], U = new int[300_000];
     static byte[] Y = new byte[300_000];
@@ -35,7 +30,7 @@ public class AdEventStoreTest {
         if (failed > 0) System.exit(1);
     }
 
-    // ------------------------------------------------------------ 1. the example from the report (section 5.1.3)
+   
     static void workedExample() {
         System.out.println("worked example");
         AdEventStore s = new AdEventStore();
@@ -56,16 +51,16 @@ public class AdEventStoreTest {
         check(s.dropBefore(at(10, 0)) == 3 && s.stats().edges == 3, "dropBefore(10:00) removes 3, leaves 3");
     }
 
-    // ------------------------------------------------------------ 2. random day vs brute force
+   
     static void randomVsBruteForce() {
         System.out.println("random events vs brute force");
         Random rnd = new Random(42);
         AdEventStore s = new AdEventStore();
         int campaigns = 100, users = 5_000;
         for (int i = 0; i < 100_000; i++) {
-            int t = (int) ((long) i * 86_400 / 100_000) - (rnd.nextInt(10) == 0 ? rnd.nextInt(6) : 0);   // jitter up to 5 s
+            int t = (int) ((long) i * 86_400 / 100_000) - (rnd.nextInt(10) == 0 ? rnd.nextInt(6) : 0);   
             t = Math.max(t, 0);
-            int c = (int) (campaigns * Math.pow(rnd.nextDouble(), 2));                                   // skewed popularity
+            int c = (int) (campaigns * Math.pow(rnd.nextDouble(), 2));                                 
             int u = rnd.nextInt(users);
             byte ty = (byte) (rnd.nextInt(100) < 90 ? 0 : rnd.nextInt(100) < 80 ? 1 : 2);
             if (s.addEvent(t, "c" + c, "u" + u, ty)) { T[n] = t; C[n] = c; U[n] = u; Y[n] = ty; n++; }
@@ -109,7 +104,7 @@ public class AdEventStoreTest {
         check(s.stats().edges == remain, "after dropBefore(12:00) edge count equals events in remaining segments");
     }
 
-    // ------------------------------------------------------------ 3. lateness window
+   
     static void lateEvents() {
         System.out.println("late events");
         AdEventStore s = new AdEventStore(null, 60);
@@ -118,13 +113,13 @@ public class AdEventStoreTest {
         check(s.addEvent(3598, "c1", "u3", AdEventStore.IMP), "event 7 s late is accepted");
         Edge[] e = s.campaignEdges("c1", 0, 7200);
         check(e.length == 3 && e[0].time <= e[1].time && e[1].time <= e[2].time, "late event is inserted at its sorted place");
-        s.addEvent(3700, "c1", "u4", AdEventStore.IMP);                 // 3700 >= 3600 + 60 s lateness, so hour 0 is sealed now
+        s.addEvent(3700, "c1", "u4", AdEventStore.IMP);               
         check(!s.addEvent(3000, "c1", "u5", AdEventStore.IMP), "event for a sealed hour is rejected");
         check(s.stats().rejected == 1, "rejected counter is 1");
         check(!s.addEvent(-5, "c1", "u1", AdEventStore.IMP) && !s.addEvent(10, "a,b", "u1", AdEventStore.IMP), "invalid events are rejected");
     }
 
-    // ------------------------------------------------------------ 4. write-ahead log + segment files + recovery
+   
     static void recovery() throws Exception {
         System.out.println("crash recovery");
         File dir = Files.createTempDirectory("adstore-test").toFile();
@@ -135,7 +130,7 @@ public class AdEventStoreTest {
             if (a.addEvent(i * 3, "c" + rnd.nextInt(20), "u" + rnd.nextInt(300), (byte) rnd.nextInt(3))) total++;
         int before = a.uniqueReach("c3", 0, 20_000);
         int segs = a.stats().segments;
-        // "crash": the first store is simply abandoned, a new one reads the directory
+       
         AdEventStore b = new AdEventStore(dir, 60);
         b.recover();
         check(b.stats().edges == total, "all " + total + " events are back after recovery");
@@ -150,7 +145,7 @@ public class AdEventStoreTest {
         dir.delete();
     }
 
-    // ------------------------------------------------------------ brute-force helpers
+    
     static int at(int h, int m) { return h * 3600 + m * 60; }
 
     static int bruteCount(int c, int u, int a, int b) {
