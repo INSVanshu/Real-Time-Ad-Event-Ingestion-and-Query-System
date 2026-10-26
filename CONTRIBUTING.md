@@ -4,10 +4,10 @@ The project is split into four parts, one owner each. Everyone works on their **
 
 | Part | Owner | Branch | Files |
 | --- | --- | --- | --- |
-| 1 - DSA core | member 1 | `feature/dsa-core` | `AdEventStore.java`, `local-engine.js`, `docs/DSA.md` |
-| 2 - Backend API | member 2 | `feature/api-server` | `Server.java`, `api.js`, `docs/API.md` |
-| 3 - Frontend simulation | member 3 | `feature/dashboard` | `index.html`, `style.css`, `app.js` |
-| 4 - QA, CI/CD, docs | member 4 | `feature/qa-devops` | `src/test/`, `.github/`, `Dockerfile`, `README.md`, `.gitignore` |
+| 1 - DSA core | Immadi Vanshika | `feature/dsa-core` | `AdEventStore.java`, `local-engine.js`, `docs/DSA.md` |
+| 2 - Backend API | Sreeja Kadambari | `feature/api-server` | `Server.java`, `api.js`, `docs/API.md` |
+| 3 - Frontend simulation | Neeharika | `feature/dashboard` | `index.html`, `style.css`, `app.js` |
+| 4 - QA, CI/CD, docs | Sanjana Kuruba | `feature/qa-devops` | `src/test/`, `.github/`, `Dockerfile`, `README.md`, `.gitignore` |
 
 
 
