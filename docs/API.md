@@ -5,7 +5,7 @@ Times are **seconds** since the start of the simulated day (`09:05` = `32700`). 
 Every response is JSON. Errors return HTTP 400 with `{"error": "..."}`. CORS is open, so the GitHub Pages dashboard can call a local server.
 
 
-| Method | Endpoint | Parameters | Response |
+| Method | Endpoint | Parameters | Response | 
 | --- | --- | --- | --- |
 | POST | `/api/event` | `t`, `c` (campaign), `u` (user), `type` = `imp` \| `click` \| `conv` | `{"accepted":true}` |
 | POST | `/api/events` | body: one event per line `time,campaign,user,type` | `{"accepted":n,"rejected":m}` |
