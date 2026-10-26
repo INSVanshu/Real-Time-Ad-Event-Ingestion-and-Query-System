@@ -1,7 +1,7 @@
 
  
 All of it lives in one file: `backend/src/main/java/adstore/AdEventStore.java`.
-
+ 
 
 
 Users and campaigns are the two vertex sets. Every ad event (impression, click, conversion) is one **edge** between a user and a campaign. The edge is stored twice, once in a campaign-side list and once in a user-side list, and all lists of one hour form a **segment**.
