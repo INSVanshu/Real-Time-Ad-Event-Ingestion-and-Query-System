@@ -10,27 +10,7 @@ import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
 
-/**
- * AdEventStore - the complete DSA component of the project, in ONE file.
- *
- * Data structure: a time-segmented BIPARTITE GRAPH (users <-> campaigns).
- * Every ad event is one edge (campaign, user, time, type) stored in two sorted
- * adjacency lists (campaign side and user side) inside the segment of its hour.
- *
- * Aggregation layout (each "has-a" the next, exactly like the class diagram):
- *
- *   AdEventStore
- *     +-- IdMap campaigns, IdMap users        (name -> dense int id, own hash table)
- *     +-- BipartiteGraph
- *     |     +-- TimeSegment[]                 (one per hour, sorted by hour)
- *     |           +-- AdjacencyList[] byCampaign   (campaign side)
- *     |           +-- AdjacencyList[] byUser       (user side)
- *     |           +-- WriteAheadLog               (optional, one file per hour)
- *     +-- query methods, seal / expire / recover
- *
- * Only primitive arrays are used inside the structure (no java.util collections).
- * Run the worked example from the report:  java AdEventStore.java
- */
+
 public class AdEventStore {
 
     // ------------------------------------------------------------------ constants
