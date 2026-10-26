@@ -94,7 +94,7 @@ curl -X POST "http://localhost:8080/api/event?t=32700&c=c1&u=u1&type=imp"
 curl "http://localhost:8080/api/campaign?c=c1&from=32400&to=36000"
 ```
 
-## Limitations
+
 
 * This is a teaching prototype: one process, one machine, segments are not merged or rolled up into days.
 * Edges are immutable and stored twice (campaign side and user side); an event for an already sealed hour is rejected.
