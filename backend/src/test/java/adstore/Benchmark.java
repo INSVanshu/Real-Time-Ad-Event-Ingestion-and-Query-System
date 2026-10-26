@@ -38,7 +38,7 @@ public class Benchmark {
         t0 = System.nanoTime();
         for (int i = 0; i < q; i++) {
             int a = qa[i], b = a + 3600, k = 0;
-            for (int j = 0; j < n; j++) if (c[j] == qc[i] && t[j] >= a && t[j] < b) k++;      // full scan of the log
+            for (int j = 0; j < n; j++) if (c[j] == qc[i] && t[j] >= a && t[j] < b) k++;      
             sink += k;
         }
         double logMs = (System.nanoTime() - t0) / 1e6 / q;
