@@ -1,12 +1,10 @@
-##javascript
-  
 const Api = (() => {
   const local = new LocalEngine();
   let base = '';
-  let mode = 'local';                       
+  let mode = 'local';                       // 'server' | 'local'
 
   const query = obj => Object.entries(obj).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
- 
+
   async function http(method, path, params = {}, body) {
     const res = await fetch(`${base}${path}?${query(params)}`, { method, body });
     const json = await res.json();
@@ -19,17 +17,17 @@ const Api = (() => {
   return {
     mode: () => mode,
 
-   
+    /** url '' = same origin (Java server serving this page). Returns the active mode. */
     async connect(url = '') {
       base = url.trim().replace(/\/$/, '');
       try {
         const res = await fetch(`${base}/api/stats`, { signal: AbortSignal.timeout(1500) });
         if (res.ok) return (mode = 'server');
-      } catch (e) {  }
+      } catch (e) { /* no server: fall through */ }
       return (mode = 'local');
     },
 
-   
+    /** events: [{t, c, u, type}] */
     async addEvents(events) {
       if (server()) return http('POST', '/api/events', {}, events.map(e => `${e.t},${e.c},${e.u},${e.type}`).join('\n'));
       let accepted = 0, rejected = 0;
