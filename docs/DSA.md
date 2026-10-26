@@ -1,8 +1,8 @@
-# The data structure: a time-segmented bipartite graph
+
 
 All of it lives in one file: `backend/src/main/java/adstore/AdEventStore.java`.
 
-## Idea
+
 
 Users and campaigns are the two vertex sets. Every ad event (impression, click, conversion) is one **edge** between a user and a campaign. The edge is stored twice, once in a campaign-side list and once in a user-side list, and all lists of one hour form a **segment**.
 
@@ -33,7 +33,7 @@ Only primitive arrays are used inside the structure (no `java.util` collections)
 | related campaigns | `related` | O(k + sum of the degrees of the k users) |
 | expire | `dropBefore` | O(1) per segment, kept data is never rewritten |
 
-## Design decisions
+
 
 * **Append keeps lists sorted.** Events arrive in time order, so appending is enough. A window is found with two binary searches (`lowerBound`).
 * **Lateness window (60 s).** An hour stays open for 60 s after it ends so slightly late events still fit. After that the segment is sealed and later events for it are rejected.
@@ -41,7 +41,6 @@ Only primitive arrays are used inside the structure (no `java.util` collections)
 * **Recovery.** `recover()` replays all `seg-*.edges` and the remaining `wal-*.log` files. A log whose segment file already exists is obsolete and removed.
 * **Expiry.** `dropBefore(t)` removes whole segments from the front of the segment array.
 
-## Worked example
 
 `java backend/src/main/java/adstore/AdEventStore.java` prints the example of report section 5.1.3:
 six events, two segments (09 sealed, 10 hot), reach of `c1` = 2, `related(c2)` = `c1 x1`, and `dropBefore(10:00)` removing 3 edges.
