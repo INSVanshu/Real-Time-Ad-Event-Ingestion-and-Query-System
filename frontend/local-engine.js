@@ -1,19 +1,13 @@
-/**
- * local-engine.js - browser port of AdEventStore.java (same ideas, same results).
- *
- * GitHub Pages can only host static files, so when no Java server is reachable the dashboard
- * runs on this engine instead. Structure:  segments (one per hour) -> per-campaign and
- * per-user adjacency lists, each list sorted by time.
- */
+
 class LocalEngine {
-  static SEG = 3600;      // seconds per segment
-  static LATE = 60;       // lateness window in seconds
+  static SEG = 3600;      
+  static LATE = 60;       
   static TYPES = ['imp', 'click', 'conv'];
 
   constructor() { this.reset(); }
 
   reset() {
-    this.segs = new Map();            // hour -> { hour, sealed, edges, byC: Map, byU: Map }
+    this.segs = new Map();            
     this.maxTime = -1;
     this.accepted = 0;
     this.rejected = 0;
@@ -21,7 +15,7 @@ class LocalEngine {
     this.users = new Set();
   }
 
-  // ---- O1: add edge --------------------------------------------------------
+  
   addEvent(t, c, u, type) {
     const hour = Math.floor(t / LocalEngine.SEG);
     const bad = !(t >= 0) || !c || !u || !LocalEngine.TYPES.includes(type);
@@ -29,15 +23,15 @@ class LocalEngine {
 
     let seg = this.segs.get(hour);
     if (!seg) { seg = { hour, sealed: false, edges: 0, byC: new Map(), byU: new Map() }; this.segs.set(hour, seg); }
-    LocalEngine.#insert(seg.byC, c, { t, o: u, y: type });   // the same edge is stored twice,
-    LocalEngine.#insert(seg.byU, u, { t, o: c, y: type });   // once per side
+    LocalEngine.#insert(seg.byC, c, { t, o: u, y: type });   
+    LocalEngine.#insert(seg.byU, u, { t, o: c, y: type });   
     seg.edges++;
     this.accepted++;
     this.campaigns.add(c);
     this.users.add(u);
 
     this.maxTime = Math.max(this.maxTime, t);
-    for (const s of this.segs.values())                       // seal finished hours
+    for (const s of this.segs.values())                      
       if (!s.sealed && (s.hour + 1) * LocalEngine.SEG + LocalEngine.LATE <= this.maxTime) s.sealed = true;
     return true;
   }
@@ -46,24 +40,24 @@ class LocalEngine {
     if (!map.has(key)) map.set(key, []);
     const list = map.get(key);
     let i = list.length;
-    while (i > 0 && list[i - 1].t > edge.t) i--;              // normal case: i stays at the end (append)
-    list.splice(i, 0, edge);                                  // late event: sorted insert near the tail
+    while (i > 0 && list[i - 1].t > edge.t) i--;             
+    list.splice(i, 0, edge);                                  
   }
 
-  // ---- helpers ---------------------------------------------------------------
-  static #lower(list, t) {                                    // first index with time >= t (binary search)
+  
+  static #lower(list, t) {                                    
     let lo = 0, hi = list.length;
     while (lo < hi) { const mid = (lo + hi) >> 1; if (list[mid].t < t) lo = mid + 1; else hi = mid; }
     return lo;
   }
 
-  #segments(from, to) {                                       // overlapping segments, oldest first
+  #segments(from, to) {                                       
     return [...this.segs.values()]
       .filter(s => s.hour * LocalEngine.SEG < to && (s.hour + 1) * LocalEngine.SEG > from)
       .sort((a, b) => a.hour - b.hour);
   }
 
-  #window(side, key, from, to) {                              // edges of one vertex in [from, to)
+  #window(side, key, from, to) {                             
     const out = [];
     for (const seg of this.#segments(from, to)) {
       const list = seg[side].get(key);
@@ -74,7 +68,7 @@ class LocalEngine {
     return out;
   }
 
-  // ---- O2, O3: windows -------------------------------------------------------
+ 
   campaignEdges(c, from, to) {
     const e = this.#window('byC', c, from, to).map(x => ({ t: x.t, c, u: x.o, type: x.y }));
     return { count: e.length, edges: e };
@@ -85,7 +79,7 @@ class LocalEngine {
     return { count: e.length, edges: e };
   }
 
-  // ---- O4: relationships ------------------------------------------------------
+  
   uniqueReach(c, from, to) {
     return { reach: new Set(this.#window('byC', c, from, to).map(x => x.o)).size };
   }
@@ -96,7 +90,7 @@ class LocalEngine {
 
   related(c, from, to) {
     const clickers = new Set(this.#window('byC', c, from, to).filter(x => x.y === 'click').map(x => x.o));
-    const shared = new Map();                                 // other campaign -> set of shared users
+    const shared = new Map();                                
     for (const u of clickers)
       for (const x of this.#window('byU', u, from, to)) {
         if (x.o === c) continue;
@@ -110,7 +104,7 @@ class LocalEngine {
 
   sample(from, to, max) {
     const edges = [];
-    const perCampaign = Math.max(1, Math.floor(max / Math.max(1, this.campaigns.size)));   // fair share per campaign
+    const perCampaign = Math.max(1, Math.floor(max / Math.max(1, this.campaigns.size)));   
     for (const seg of this.#segments(from, to).reverse())
       for (const [c, list] of seg.byC) {
         const lo = LocalEngine.#lower(list, from);
@@ -121,7 +115,7 @@ class LocalEngine {
     return { count: edges.length, edges };
   }
 
-  // ---- O6: expire ---------------------------------------------------------------
+  
   dropBefore(time) {
     let dropped = 0;
     for (const [hour, seg] of [...this.segs])
