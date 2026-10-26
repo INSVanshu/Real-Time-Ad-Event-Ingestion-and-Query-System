@@ -5,7 +5,7 @@ const Api = (() => {
   let mode = 'local';                       
 
   const query = obj => Object.entries(obj).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
-
+ 
   async function http(method, path, params = {}, body) {
     const res = await fetch(`${base}${path}?${query(params)}`, { method, body });
     const json = await res.json();
