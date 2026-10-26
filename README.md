@@ -5,7 +5,7 @@ Every ad event (impression, click, conversion) is an edge between a **user** and
 
 This repository is the working project for the case study *"Real-Time Ad Event Ingestion and Query System"*.
 
-```
+``` 
  ad event ──► write-ahead log ──► edge in campaign list + user list ──► seal hour (immutable file)
                                               │
  dashboard ◄── Java HTTP API ◄── queries: window · history · reach · frequency · related · expire
