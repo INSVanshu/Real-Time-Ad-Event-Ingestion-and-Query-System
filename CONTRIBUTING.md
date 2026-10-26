@@ -1,5 +1,5 @@
    
-
+##contributing
 The project is split into four parts, one owner each. Everyone works on their **own branch**, opens a **pull request** into `main`, and another member reviews it. `.github/CODEOWNERS` asks the owner of a file to review changes to it.
 
 | Part | Owner | Branch | Files |
