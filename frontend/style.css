@@ -3,7 +3,7 @@
   --accent: #3b6fd4; --danger: #c0392b;
   --imp: #7d97c4; --click: #e8833a; --conv: #2fa36b;
   color-scheme: light;
-}
+} 
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #12151c; --panel: #1b2029; --text: #e7eaf1; --muted: #98a2b3; --line: #2b3240;
