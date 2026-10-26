@@ -1,16 +1,13 @@
-/**
- * app.js - dashboard logic: event simulator, bipartite graph drawing, segment view and query panel.
- * All data goes through Api (Java server or in-browser engine).
- */
+
 const $ = id => document.getElementById(id);
 
-// ---------------------------------------------------------------- simulation settings
+
 const CAMPAIGNS = Array.from({ length: 12 }, (_, i) => `c${i + 1}`);
 const USERS = Array.from({ length: 150 }, (_, i) => `u${i + 1}`);
-const WEIGHTS = CAMPAIGNS.map((_, i) => 1 / (i + 1));                 // skewed popularity: c1 is the hot campaign
+const WEIGHTS = CAMPAIGNS.map((_, i) => 1 / (i + 1));                 
 const WEIGHT_SUM = WEIGHTS.reduce((a, b) => a + b, 0);
-const START = 8 * 3600;                                               // simulation starts at 08:00
-const TICK_MS = 250;                                                  // one tick = 30 simulated seconds
+const START = 8 * 3600;                                               
+const TICK_MS = 250;                                                 
 const TICK_SECONDS = 30;
 const EVENTS_PER_TICK = 25;
 
@@ -26,10 +23,10 @@ function pickCampaign() {
 
 function pickType() {
   const r = Math.random();
-  return r < 0.90 ? 'imp' : r < 0.98 ? 'click' : 'conv';              // 90 % / 8 % / 2 %
+  return r < 0.90 ? 'imp' : r < 0.98 ? 'click' : 'conv';             
 }
 
-/** n events spread over the last `span` simulated seconds; ~10 % arrive up to 5 s late (jitter). */
+
 function makeEvents(n, span) {
   const events = [];
   for (let i = 0; i < n; i++) {
@@ -40,7 +37,7 @@ function makeEvents(n, span) {
   return events;
 }
 
-// ---------------------------------------------------------------- formatting helpers
+
 const pad = n => String(n).padStart(2, '0');
 const fmt = t => `${pad(Math.floor(t / 3600))}:${pad(Math.floor(t % 3600 / 60))}`;
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
@@ -55,7 +52,7 @@ function bytes(n) {
   return n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(2)} MB`;
 }
 
-// ---------------------------------------------------------------- stream / burst / expire / reset
+
 async function tick() {
   if (busy) return;
   busy = true;
@@ -81,7 +78,7 @@ function stop() {
 $('btn-stream').onclick = () => (timer ? stop() : start());
 
 $('btn-burst').onclick = async () => {
-  simTime += 600;                                                      // jump 10 simulated minutes
+  simTime += 600;                                                      
   await Api.addEvents(makeEvents(1000, 600));
   await refresh();
 };
@@ -106,7 +103,7 @@ $('btn-connect').onclick = async () => {
   await refresh();
 };
 
-// ---------------------------------------------------------------- rendering
+
 async function refresh() {
   const [stats, sample] = await Promise.all([Api.stats(), Api.sample(simTime - 900, simTime + 1, 48)]);
   renderMode();
@@ -167,7 +164,7 @@ function drawGraph(edges) {
   const xC = 90, xU = W - 90;
 
   const style = { imp: [color('--imp'), 1, 0.35], click: [color('--click'), 1.8, 0.9], conv: [color('--conv'), 2.6, 0.95] };
-  for (const type of ['imp', 'click', 'conv']) {                      // draw the rare, important edges last (on top)
+  for (const type of ['imp', 'click', 'conv']) {                      
     const [stroke, width, alpha] = style[type];
     g.strokeStyle = stroke; g.lineWidth = width; g.globalAlpha = alpha;
     for (const e of visible.filter(x => x.type === type)) {
@@ -185,7 +182,7 @@ function drawGraph(edges) {
   us.forEach((u, i) => { g.beginPath(); g.arc(xU, pos(us, i), 4, 0, 7); g.fill(); g.textAlign = 'left'; g.fillText(u, xU + 10, pos(us, i) + 3); });
 }
 
-// ---------------------------------------------------------------- query panel
+
 function setupQueryForm() {
   $('q-campaign').innerHTML = CAMPAIGNS.map(c => `<option>${c}</option>`).join('');
   const sync = () => {
@@ -241,13 +238,13 @@ function relatedTable(r) {
   return `<table><tr><th>Campaign</th><th>Shared users</th></tr>${rows}</table>`;
 }
 
-// ---------------------------------------------------------------- start
+
 (async function init() {
   setupQueryForm();
-  if (location.hostname.endsWith('.github.io')) {                     // <user>.github.io/<repo>/  ->  github.com/<user>/<repo>
+  if (location.hostname.endsWith('.github.io')) {                    
     $('repo-link').href = `https://github.com/${location.hostname.split('.')[0]}/${location.pathname.split('/')[1]}`;
   }
-  const fromServer = location.protocol.startsWith('http');            // opened from the Java server or Pages?
+  const fromServer = location.protocol.startsWith('http');           
   await Api.connect(fromServer ? '' : 'http://localhost:8080');
   await refresh();
 })();
