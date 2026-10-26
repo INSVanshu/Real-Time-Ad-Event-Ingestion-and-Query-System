@@ -1,14 +1,8 @@
-/**
- * api.js - one small client for the dashboard.
- *
- * connect(url) tries the Java backend (GET <url>/api/stats). If it answers, every call goes over HTTP,
- * otherwise the same calls run on the in-browser LocalEngine. Both return the same JSON shapes
- * (see docs/API.md), so the UI never needs to know which one is active.
- */
+
 const Api = (() => {
   const local = new LocalEngine();
   let base = '';
-  let mode = 'local';                       // 'server' | 'local'
+  let mode = 'local';                       
 
   const query = obj => Object.entries(obj).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
 
@@ -24,17 +18,17 @@ const Api = (() => {
   return {
     mode: () => mode,
 
-    /** url '' = same origin (Java server serving this page). Returns the active mode. */
+   
     async connect(url = '') {
       base = url.trim().replace(/\/$/, '');
       try {
         const res = await fetch(`${base}/api/stats`, { signal: AbortSignal.timeout(1500) });
         if (res.ok) return (mode = 'server');
-      } catch (e) { /* no server: fall through */ }
+      } catch (e) {  }
       return (mode = 'local');
     },
 
-    /** events: [{t, c, u, type}] */
+   
     async addEvents(events) {
       if (server()) return http('POST', '/api/events', {}, events.map(e => `${e.t},${e.c},${e.u},${e.type}`).join('\n'));
       let accepted = 0, rejected = 0;
