@@ -2,7 +2,6 @@
 out/
 *.class
 
-
 data/
 *.edges
 wal-*.log
