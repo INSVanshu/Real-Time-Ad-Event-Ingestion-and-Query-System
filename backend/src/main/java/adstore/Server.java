@@ -20,16 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
-/**
- * Server - thin HTTP layer over AdEventStore. No frameworks, no dependencies: only the JDK.
- *
- * Usage:  java -cp out adstore.Server [port] [frontendDir] [dataDir]
- *   port         default: $PORT or 8080
- *   frontendDir  optional, serves the dashboard at http://localhost:<port>/
- *   dataDir      optional, enables write-ahead log + sealed segment files + crash recovery
- *
- * Endpoints are documented in docs/API.md.
- */
+
 public class Server {
 
     private static AdEventStore store;
@@ -51,9 +42,9 @@ public class Server {
         System.out.println("Ad Event Graph Store running on http://localhost:" + port);
     }
 
-    // ------------------------------------------------------------------ API
+    
     private static void api(HttpExchange ex) throws IOException {
-        ex.getResponseHeaders().add("Access-Control-Allow-Origin", "*");           // lets the GitHub Pages UI call a local server
+        ex.getResponseHeaders().add("Access-Control-Allow-Origin", "*");           
         ex.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         ex.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
         ex.getResponseHeaders().add("Access-Control-Allow-Private-Network", "true");
@@ -97,7 +88,7 @@ public class Server {
         };
     }
 
-    /** Body format: one event per line  ->  time,campaign,user,type */
+    
     private static String batch(String body) {
         int ok = 0, bad = 0;
         for (String line : body.split("\n")) {
@@ -110,7 +101,7 @@ public class Server {
         return "{\"accepted\":" + ok + ",\"rejected\":" + bad + "}";
     }
 
-    // ------------------------------------------------------------------ JSON helpers (hand-written, tiny)
+    
     private static String edges(Edge[] e, int limit) {
         StringBuilder sb = new StringBuilder("{\"count\":").append(e.length).append(",\"edges\":[");
         for (int i = 0; i < Math.min(e.length, limit); i++) {
@@ -146,7 +137,7 @@ public class Server {
 
     private static String q(String s) { return "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\""; }
 
-    // ------------------------------------------------------------------ parameter helpers
+    
     private static Map<String, String> params(String raw) {
         Map<String, String> m = new HashMap<>();
         if (raw == null) return m;
@@ -178,7 +169,7 @@ public class Server {
 
     private static void need(boolean ok, String m) { if (!ok) throw new IllegalArgumentException("use " + m + " for this endpoint"); }
 
-    // ------------------------------------------------------------------ static files (the dashboard)
+    
     private static void staticFile(HttpExchange ex, Path web) throws IOException {
         if (web == null) { send(ex, 404, "text/plain", "API only. Start with a frontend folder to serve the dashboard.".getBytes()); return; }
         String path = ex.getRequestURI().getPath();
