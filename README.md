@@ -29,10 +29,10 @@ This repository is the working project for the case study *"Real-Time Ad Event I
 
 | Part | Member | GitHub |
 | --- | --- | --- |
-| 1 - DSA core | _name_ | @member1 |
-| 2 - Backend API | _name_ | @member2 |
-| 3 - Frontend simulation | _name_ | @member3 |
-| 4 - QA, CI/CD, docs | _name_ | @member4 |
+| 1 - DSA core | Vanshika | @INSVanshu |
+| 2 - Backend API | Sreeja | @sreejakadambari27-dotcom |
+| 3 - Frontend simulation | Neeharika | @Neeharika2008-spec |
+| 4 - QA, CI/CD, docs | Sanjana | @kurubaSanjana |
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the branch and pull request workflow.
 
