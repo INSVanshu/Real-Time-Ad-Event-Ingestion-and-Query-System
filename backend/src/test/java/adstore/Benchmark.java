@@ -2,13 +2,7 @@ package adstore;
 
 import java.util.Random;
 
-/**
- * Mini version of the measurement in section 2.8 of the case study:
- * bipartite graph vs a plain append-only log that must be scanned for every query.
- *
- * Run:  java -cp out adstore.Benchmark [events]      (default 200000)
- * Numbers depend on your machine and are only meant to compare the two structures.
- */
+
 public class Benchmark {
 
     public static void main(String[] args) {
@@ -16,7 +10,7 @@ public class Benchmark {
         int campaigns = 500, users = 50_000;
         Random rnd = new Random(1);
 
-        int[] t = new int[n], c = new int[n], u = new int[n];       // the "append-only log"
+        int[] t = new int[n], c = new int[n], u = new int[n];       
         byte[] y = new byte[n];
         AdEventStore graph = new AdEventStore();
 
@@ -36,8 +30,7 @@ public class Benchmark {
         for (int i = 0; i < q; i++) { qc[i] = rnd.nextInt(campaigns); qa[i] = rnd.nextInt(86_400 - 3600); }
 
         long sink = 0;
-        for (int i = 0; i < 50; i++) sink += graph.campaignEdges("c" + qc[i], qa[i], qa[i] + 3600).length;   // warm-up
-
+        for (int i = 0; i < 50; i++) sink += graph.campaignEdges("c" + qc[i], qa[i], qa[i] + 3600).length; 
         t0 = System.nanoTime();
         for (int i = 0; i < q; i++) sink += graph.campaignEdges("c" + qc[i], qa[i], qa[i] + 3600).length;
         double graphMs = (System.nanoTime() - t0) / 1e6 / q;
