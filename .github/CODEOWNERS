@@ -2,23 +2,23 @@
 # Every pull request touching a file is reviewed by its owner.
 
 # Part 1 - DSA core
-/backend/src/main/java/adstore/AdEventStore.java   @member1
-/frontend/local-engine.js                          @member1
-/docs/DSA.md                                       @member1
+/backend/src/main/java/adstore/AdEventStore.java   @INSVanshu
+/frontend/local-engine.js                          @INSVanshu
+/docs/DSA.md                                       @INSVanshu
 
 # Part 2 - Backend API
-/backend/src/main/java/adstore/Server.java         @member2
-/frontend/api.js                                   @member2
-/docs/API.md                                       @member2
+/backend/src/main/java/adstore/Server.java         @sreejakadambari27-dotcom
+/frontend/api.js                                   @sreejakadambari27-dotcom
+/docs/API.md                                       @sreejakadambari27-dotcom
 
 # Part 3 - Frontend simulation
-/frontend/index.html                               @member3
-/frontend/style.css                                @member3
-/frontend/app.js                                   @member3
+/frontend/index.html                               @Neeharika2008-spec
+/frontend/style.css                                @Neeharika2008-spec
+/frontend/app.js                                   @Neeharika2008-spec
 
 # Part 4 - Tests, CI/CD, docs
-/backend/src/test/                                 @member4
-/.github/                                          @member4
-/Dockerfile                                        @member4
-/README.md                                         @member4
-/CONTRIBUTING.md                                   @member4
+/backend/src/test/                                 @kurubaSanjana
+/.github/                                          @kurubaSanjana
+/Dockerfile                                        @kurubaSanjana
+/README.md                                         @kurubaSanjana
+/CONTRIBUTING.md                                   @kurubaSanjana
