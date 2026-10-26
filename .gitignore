@@ -1,13 +1,13 @@
-# build output
+
 out/
 *.class
 
-# runtime data of the Java server (write-ahead logs and sealed segment files)
+
 data/
 *.edges
 wal-*.log
 
-# editors / OS
+
 .idea/
 .vscode/
 *.iml
