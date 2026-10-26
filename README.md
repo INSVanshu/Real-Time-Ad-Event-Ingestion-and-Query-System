@@ -1,4 +1,3 @@
-# Ad Event Graph Store
 
 **Real-Time Ad Event Ingestion and Query System** built on one data structure: a **time-segmented bipartite graph**.
 
@@ -13,7 +12,7 @@ This repository is the working project for the case study *"Real-Time Ad Event I
  (browser)     (Server.java)               (AdEventStore.java, the DSA)
 ```
 
-## Repository layout
+
 
 | Path | What it is | Part |
 | --- | --- | --- |
@@ -26,7 +25,7 @@ This repository is the working project for the case study *"Real-Time Ad Event I
 | `.github/workflows/`, `Dockerfile` | CI, GitHub Pages deploy, container | 4 - QA / DevOps |
 | `docs/` | `DSA.md` (structure and costs), `API.md` (endpoints) | 1, 2 |
 
-## Team
+
 
 | Part | Member | GitHub |
 | --- | --- | --- |
@@ -37,18 +36,17 @@ This repository is the working project for the case study *"Real-Time Ad Event I
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the branch and pull request workflow.
 
-## Quick start
+
 
 You need a **JDK 17 or newer** (`java -version` and `javac -version`).
 
-### Option A - full stack (Java backend + dashboard)
 
 ```bash
-# compile
+
 mkdir out
 javac -d out backend/src/main/java/adstore/*.java
 
-# run: port, folder with the dashboard, folder for logs and sealed segments
+
 java -cp out adstore.Server 8080 frontend data
 ```
 
@@ -56,25 +54,22 @@ Open <http://localhost:8080>, press **Start live stream**. The badge shows *Back
 
 Windows (cmd): `javac -d out backend\src\main\java\adstore\*.java` and `java -cp out adstore.Server 8080 frontend data`.
 
-### Option B - dashboard only (no Java)
 
 Open `frontend/index.html` in a browser, or run `python3 -m http.server -d frontend 8000`.
 The badge shows *Backend: in-browser engine*: the same data structure running in JavaScript.
 
-### Option C - Docker
+
 
 ```bash
 docker build -t ad-event-graph-store .
 docker run -p 8080:8080 -v adstore-data:/app/data ad-event-graph-store
 ```
 
-## Try the DSA alone
 
 ```bash
 java backend/src/main/java/adstore/AdEventStore.java      # prints the worked example of the report
 ```
 
-## Tests and benchmark
 
 ```bash
 javac -d out backend/src/main/java/adstore/*.java backend/src/test/java/adstore/*.java
@@ -82,7 +77,7 @@ java -cp out adstore.AdEventStoreTest      # 25 checks, every query compared wit
 java -cp out adstore.Benchmark             # graph vs scanning a plain log
 ```
 
-## Deploy on GitHub
+
 
 1. Create an empty repository and push this project to `main`.
 2. **Settings -> Pages -> Build and deployment -> Source: GitHub Actions.**
@@ -91,7 +86,6 @@ java -cp out adstore.Benchmark             # graph vs scanning a plain log
 4. The `CI` workflow compiles the Java code and runs the tests on every push and pull request.
 5. To use the Java backend with the hosted dashboard: run the server locally, open the Pages site and type `http://localhost:8080` into *Java backend URL* (the server allows cross-origin calls). To host the backend itself, deploy the `Dockerfile` on any container host (Render, Railway, Fly.io); it serves both API and dashboard.
 
-## API
 
 See [docs/API.md](docs/API.md). Example:
 
